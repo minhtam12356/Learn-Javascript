@@ -1,0 +1,1 @@
+{"name":"web","version":"1.0.0","description":"","main":"BT31_JS.js","dependencies":{"password-generator":"^2.3.2","readline-sync":"^1.4.10","utf8":"^3.0.0","wifi-password":"^3.0.1"},"devDependencies":{},"scripts":{"test":"echo \"Error: no test specified\" && exit 1"},"author":"","license":"ISC","members":[{"name":"tam","age":21}]}
