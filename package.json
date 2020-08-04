@@ -6,6 +6,7 @@
   "dependencies": {
     "password-generator": "^2.3.2",
     "readline-sync": "^1.4.10",
+    "request": "^2.88.2",
     "utf8": "^3.0.0",
     "vntk": "^1.4.4",
     "wifi-password": "^3.0.1"
