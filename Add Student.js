@@ -6,7 +6,7 @@ var fs = require('fs');
         var read = fs.readFileSync('txt.json', {encoding : 'utf-8'});
     } catch (error) {
         fs.writeFileSync('txt.json', "[]")
-        loop();
+        var read = fs.readFileSync('txt.json', {encoding : 'utf-8'});
     }
 
 var a = JSON.parse(read)
