@@ -8,71 +8,41 @@
 var fs = require('fs');
 var readLine = require ('readline-sync');
 
-var dataBaseBook = [
-    {
-        id : 0,
-        name : 'Tay du ky'
-    },
-    {
-        id : 1,
-        name : 'Nhat ky cua be'
-    },
-    {
-        id : 2,
-        name : 'Robinson'
-    },
-    {
-        id : 3,
-        name : 'Tieng anh'
-    },
-];
-
-var dataBaseNumber = [
-    {
-        name : 'Tay du ky',
-        numberOfShelves : 0,
-        quantity : 12
-    },
-    {
-        name : 'Nhat ky cua be',
-        numberOfShelves : 1,
-        quantity : 13
-    },
-    {
-        name : 'Robinson',
-        numberOfShelves : 2,
-        quantity : 14
-    },
-    {
-        name : 'Tieng anh',
-        numberOfShelves : 3,
-        quantity : 15
-    },
-]; 
 function showMenu(){
   console.log('\n====HELLO====\n1. Login\n2. Register\n3. Exit');
 }
 
-function showLogin(){
+function findUsername(info){
     try {
         var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
     } catch (error) {
         fs.writeFileSync('DatabaseUser.json', '[]')      
         var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})  
     }
-    
+    var parse = JSON.parse(read);
+    return parse.find(function(x){
+        return x.username === info
+        })
+            
+}
+
+function findPassword(user, info){
+    return user.password === info   
+  }
+
+function showLogin(){
     do{
         var userName = readLine.question('UserName: ')
-        if (userName === ''){
+        if (userName === '' || findUsername(userName) === undefined){
             console.log("USERNAME INCORRECT, PLEASE TRY AGAIN !!")
         }
-    }while(userName === '')
+    }while(userName === '' || findUsername(userName) === undefined)
     do{
         var passWord = readLine.question('PassWord: ')
-        if (passWord === ''){
+        if (passWord === '' || findPassword(findUsername(userName), passWord) === false){
             console.log("PASSWORD INCORRECT, PLEASE TRY AGAIN !!")
         }
-    }while(passWord === '')
+    }while(passWord === '' || findPassword(findUsername(userName), passWord) === false)
 }
 
 function showRegister(){
