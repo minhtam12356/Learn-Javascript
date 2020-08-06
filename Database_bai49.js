@@ -9,7 +9,7 @@ var fs = require('fs');
 var readLine = require ('readline-sync');
 
 function showMenu(){
-  console.log('\n====HELLO====\n1. Login\n2. Register\n3. Exit');
+  console.log('\n====WELCOME TO LIBRARY====\n1. Login\n2. Register\n3. Exit');
 }
 
 function findUsername(info){
@@ -28,7 +28,7 @@ function findUsername(info){
 
 function findPassword(user, info){
     return user.password === info   
-  }
+}
 
 function showLogin(){
     do{
@@ -43,6 +43,7 @@ function showLogin(){
             console.log("PASSWORD INCORRECT, PLEASE TRY AGAIN !!")
         }
     }while(passWord === '' || findPassword(findUsername(userName), passWord) === false)
+       
 }
 
 function showRegister(){
@@ -76,17 +77,61 @@ function showRegister(){
             console.log("REWRITE PASSWORD MUST SAME PASSWORD !!")
         }
     }while(rpassWord === '' || rpassWord !== passWord)
-
+    user.borrowed = "0";
+    user.sumOutOfDate = "0";
+       
+    parse.push(user);
+    var stringify = JSON.stringify(parse);      
+    fs.writeFileSync('DatabaseUser.json', stringify)
     
-    try {
-        console.log(parse)
-        parse.push(user);
-        var stringify = JSON.stringify(parse);
-        console.log('s', stringify)
-        fs.writeFileSync('DatabaseUser.json', stringify)
-    } catch (error) {
-        console.log('loi')
-    } 
+}
+
+function rentBook(){
+    var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
+    var parse = JSON.parse(read);
+    var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+    var parseNumber = JSON.parse(readNumber);
+    console.log('\n====CHOOSE BOOK====');
+    for (info of parse){
+        for (infoNumber of parseNumber){
+            if (info.name === infoNumber.name)
+                console.log(info.id, info.name, '\t\tQuantity: ', infoNumber.quantity)
+        }
+    }
+    var choose = readLine.question('Choose ID >')
+    var chose = parse.find(function(x){
+        return x.id === parseInt(choose)
+    })
+    var chse = parseNumber.find(function(y){
+        return y.name === chose.name
+    })
+
+    console.log('Ban da muon sach', parse[choose].name, '\t\tSo luong con lai: ', --chse.quantity )  
+    
+}
+
+function showHomePage(){
+    console.log('\n====HELLO====\n1. Rent Book\n2. Return Book\n3. Logout');
+    var choose = readLine.question('>')
+    switch(choose)
+    {       
+        case '1':
+            {
+                rentBook();
+                showHomePage();
+                break;
+            }
+        case '2':
+            {
+            
+                break;
+            } 
+        default:
+        {
+            console.log('CANCEL')
+            break;
+        }            
+    }
 }
 
 function main(){
@@ -97,7 +142,8 @@ function main(){
         case '1':
             {
                 showLogin();
-                main()
+                showHomePage();
+                main();
                 break;
             }
         case '2':
