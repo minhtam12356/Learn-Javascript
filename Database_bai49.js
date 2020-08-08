@@ -7,6 +7,7 @@
  */
 var fs = require('fs');
 var readLine = require ('readline-sync');
+var moment = require('moment');
 
 function showMenu(){
   console.log('\n====WELCOME TO LIBRARY====\n1. Login\n2. Register\n3. Exit');
@@ -30,32 +31,20 @@ function findPassword(user, info){
     return user.password === info   
 }
 
-function showLogin(){
-    do{
-        var userName = readLine.question('UserName: ')
-        if (userName === '' || findUsername(userName) === undefined){
-            console.log("USERNAME INCORRECT, PLEASE TRY AGAIN !!")
-        }
-    }while(userName === '' || findUsername(userName) === undefined)
-    do{
-        var passWord = readLine.question('PassWord: ')
-        if (passWord === '' || findPassword(findUsername(userName), passWord) === false){
-            console.log("PASSWORD INCORRECT, PLEASE TRY AGAIN !!")
-        }
-    }while(passWord === '' || findPassword(findUsername(userName), passWord) === false)
-       
-}
+
 
 function showRegister(){
+    //create user
     var user = {};
     try {
         var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
-        console.log('doc thanh cong')
     } catch (error) {
         fs.writeFileSync('DatabaseUser.json', "[]")
         var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})        
     }
     var parse = JSON.parse(read)
+
+    
 
     do{
         var userName = readLine.question('UserName: ')
@@ -78,15 +67,18 @@ function showRegister(){
         }
     }while(rpassWord === '' || rpassWord !== passWord)
     user.borrowed = "0";
+    user.returned = "0";
     user.sumOutOfDate = "0";
        
     parse.push(user);
     var stringify = JSON.stringify(parse);      
     fs.writeFileSync('DatabaseUser.json', stringify)
+
+    
     
 }
 
-function rentBook(){
+function borrowBook(userName){
     var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
     var parse = JSON.parse(read);
     var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
@@ -107,23 +99,47 @@ function rentBook(){
     })
 
     console.log('Ban da muon sach', parse[choose].name, '\t\tSo luong con lai: ', --chse.quantity )  
-    
+    fs.writeFileSync('DatabaseNumber.json', JSON.stringify(parseNumber))
+
+    //create history borrow
+    var history = {};
+    try {
+        var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
+    } catch (error) {
+        fs.writeFileSync('DatabaseHistory.json', "[]")
+        var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})        
+    }
+    var parseH = JSON.parse(readH)
+    var newDate = new Date(moment().format('DD/MM/YYYY'));
+    newDate.setDate(newDate.getDate() + 15)
+    history.username = userName;
+    history.book = parse[choose].name;
+    history.borrowDate = moment().format('DD/MM/YYYY');
+    history.expirateDate = moment(newDate).format('DD/MM/YYYY');
+    history.returnDate = "Unpaid";
+    parseH.push(history);
+    var stringifyH = JSON.stringify(parseH);      
+    fs.writeFileSync('DatabaseHistory.json', stringifyH)
 }
 
-function showHomePage(){
-    console.log('\n====HELLO====\n1. Rent Book\n2. Return Book\n3. Logout');
+function showHomePage(userName){
+    console.log('\n====HELLO====\n1. Borrow Book\n2. Return Book\n3. History\n4. Logout');
     var choose = readLine.question('>')
     switch(choose)
     {       
         case '1':
             {
-                rentBook();
-                showHomePage();
+                borrowBook(userName);
+                increBorrow(userName);
+                showHomePage(userName);       
                 break;
             }
         case '2':
             {
-            
+
+                decreBorrow(userName);
+                returned(userName);
+                showHomePage(userName);
                 break;
             } 
         default:
@@ -134,15 +150,61 @@ function showHomePage(){
     }
 }
 
+function increBorrow(username){
+    var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
+    var parse = JSON.parse(read);
+    var changeB = parse.find(function(x){
+        return x.username === username
+    })
+    ++changeB.borrowed
+    
+    return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
+}
+
+function decreBorrow(username){
+    var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
+    var parse = JSON.parse(read);
+    var changeB = parse.find(function(x){
+        return x.username === username
+    })
+    --changeB.borrowed
+    
+    return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
+}
+
+function returned(username){
+    var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
+    var parse = JSON.parse(read);
+    var changeB = parse.find(function(x){
+        return x.username === username
+    })
+    ++changeB.returned
+    
+    return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
+}
+
 function main(){
     showMenu()
     var choose = readLine.question('>')  
     switch(choose)
     {
         case '1':
-            {
-                showLogin();
-                showHomePage();
+            { 
+                do{
+                    var userName = readLine.question('UserName: ')
+                    if (userName === '' || findUsername(userName) === undefined){
+                        console.log("USERNAME INCORRECT, PLEASE TRY AGAIN !!")
+                    }
+                }while(userName === '' || findUsername(userName) === undefined)
+                do{
+                    var passWord = readLine.question('PassWord: ')
+                    if (passWord === '' || findPassword(findUsername(userName), passWord) === false){
+                        console.log("PASSWORD INCORRECT, PLEASE TRY AGAIN !!")
+                    }
+                }while(passWord === '' || findPassword(findUsername(userName), passWord) === false)
+                
+                showHomePage(userName);
+                
                 main();
                 break;
             }

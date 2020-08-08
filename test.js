@@ -7,6 +7,7 @@
  */
 var fs = require('fs');
 var readLine = require ('readline-sync');
+var moment = require('moment');
 // function findUsername(info){
 //   try {
 //       var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
@@ -26,27 +27,50 @@ var readLine = require ('readline-sync');
 // }
 // console.log(findUsername('hoa'))
 // console.log(findPassword(findUsername(username), '1999'))
-var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
-var parse = JSON.parse(read);
-var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
-var parseNumber = JSON.parse(readNumber);
-console.log('\n====CHOOSE BOOK====');
-for (info of parse){
-    for (infoNumber of parseNumber){
-        if (info.name === infoNumber.name)
-            console.log(info.id, info.name, '\t\tQuantity: ', infoNumber.quantity)
-    }
-}
-var choose = readLine.question('>')
-var chose = parse.find(function(x){
-    return x.id === parseInt(choose)
-})
-var chse = parseNumber.find(function(y){
-    return y.name === chose.name
-})
-
-console.log('Ban da muon sach', parse[choose].name, '\t\tSo luong con lai: ', --chse.quantity )
+// var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
+// var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+// var readUser = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
+// var parse = JSON.parse(read);
+// var parseNumber = JSON.parse(readNumber);
+// var parseUser = JSON.parse(readUser);
+// console.log('\n====CHOOSE BOOK====');
+// for (info of parse){
+//     for (infoNumber of parseNumber){
+//         if (info.name === infoNumber.name)
+//             console.log(info.id, info.name, '\t\tQuantity: ', infoNumber.quantity)
+//     }
+// }
+// var choose = readLine.question('>')
+// var chose = parse.find(function(x){
+//     return x.id === parseInt(choose)
+// })
+// var chse = parseNumber.find(function(y){
+//     return y.name === chose.name
+// })
+// var chseU = parseUser.find(function(y){
+//     return y.name === chose.name
+// })
+// console.log(chseU)
+// console.log('Ban da muon sach', parse[choose].name, '\t\tSo luong con lai: ', --chse.quantity )
+// fs.writeFileSync('DatabaseNumber.json', JSON.stringify(parseNumber))
+// function change(username){
+//     var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
+//     var parse = JSON.parse(read);
+//     var changeB = parse.find(function(x){
+//         return x.username === username
+//     })
+//     ++changeB.borrowed
     
+//     return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
+// }
+// change('tam')
+
+
+
+
+
+console.log(new Date(moment().format('DD/MM/YYYY')).setDate(3))
+
 
 
 
