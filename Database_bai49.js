@@ -8,6 +8,7 @@
 var fs = require('fs');
 var readLine = require ('readline-sync');
 var moment = require('moment');
+const { memory } = require('console');
 
 function showMenu(){
   console.log('\n====WELCOME TO LIBRARY====\n1. Login\n2. Register\n3. Exit');
@@ -79,9 +80,31 @@ function showRegister(){
 }
 
 function borrowBook(userName){
-    var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
+    try {
+        var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
+    } catch (error) {
+        var data = JSON.stringify([
+            { id: 0, name: 'Tay du ky' },
+             { id: 1, name: 'Nhat ky cua be' },
+             { id: 2, name: 'Robinson' },
+             { id: 3, name: 'Tieng anh' }
+            ])
+        fs.writeFileSync('DatabaseBook.json', data)      
+        var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})  
+    }
     var parse = JSON.parse(read);
-    var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+    try {
+        var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+    } catch (error) {
+        var dataN = JSON.stringify([
+            { name: 'Nhat ky cua be', numberOfShelves: 1, quantity: 10 },
+             { name: 'Tay du ky', numberOfShelves: 0, quantity: 11 },
+             { name: 'Robinson', numberOfShelves: 2, quantity: 12 },
+             { name: 'Tieng anh', numberOfShelves: 3, quantity: 13 }
+            ])
+        fs.writeFileSync('DatabaseNumber.json', dataN)      
+        var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})  
+    }
     var parseNumber = JSON.parse(readNumber);
     console.log('\n====CHOOSE BOOK====');
     for (info of parse){
@@ -101,6 +124,27 @@ function borrowBook(userName){
     console.log('Ban da muon sach', parse[choose].name, '\t\tSo luong con lai: ', --chse.quantity )  
     fs.writeFileSync('DatabaseNumber.json', JSON.stringify(parseNumber))
 
+    //create borrow
+    var borrow = {};
+    try {
+        var readB = fs.readFileSync('DatabaseBorrow.json', {encoding : 'utf8'})
+    } catch (error) {
+        fs.writeFileSync('DatabaseBorrow.json', "[]")
+        var readB = fs.readFileSync('DatabaseBorrow.json', {encoding : 'utf8'})        
+    }
+    var parseB = JSON.parse(readB)
+    var newDate = new Date();
+    newDate.setDate(newDate.getDate() + 15)
+    borrow.id = parseB.length;
+    borrow.username = userName;
+    borrow.book = parse[choose].name;
+    borrow.borrowDate = moment().format('DD/MM/YYYY');
+    borrow.expirateDate = moment(newDate).format('DD/MM/YYYY');
+    borrow.returnDate = "Unpaid";
+    parseB.push(borrow);
+    var stringifyB = JSON.stringify(parseB);      
+    fs.writeFileSync('DatabaseBorrow.json', stringifyB)
+
     //create history borrow
     var history = {};
     try {
@@ -110,8 +154,9 @@ function borrowBook(userName){
         var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})        
     }
     var parseH = JSON.parse(readH)
-    var newDate = new Date(moment().format('DD/MM/YYYY'));
+    var newDate = new Date();
     newDate.setDate(newDate.getDate() + 15)
+    history.id = parseH.length;
     history.username = userName;
     history.book = parse[choose].name;
     history.borrowDate = moment().format('DD/MM/YYYY');
@@ -136,12 +181,17 @@ function showHomePage(userName){
             }
         case '2':
             {
-
-                decreBorrow(userName);
                 returned(userName);
+                decreBorrow(userName);
                 showHomePage(userName);
                 break;
             } 
+        case '3':
+            {
+                history(userName);
+                showHomePage(userName);
+                break;
+            }
         default:
         {
             console.log('CANCEL')
@@ -167,20 +217,60 @@ function decreBorrow(username){
     var changeB = parse.find(function(x){
         return x.username === username
     })
-    --changeB.borrowed
+    ++changeB.returned
     
     return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
 }
 
-function returned(username){
-    var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
-    var parse = JSON.parse(read);
-    var changeB = parse.find(function(x){
-        return x.username === username
-    })
-    ++changeB.returned
+function returned(username){ 
+    var newDate = new Date();
+    var readN = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+    var parseN = JSON.parse(readN);
+
+    var readB = fs.readFileSync('DatabaseBorrow.json', {encoding : 'utf8'})
+    var parseB = JSON.parse(readB);
+
+    var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
+    var parseH = JSON.parse(readH);
+    console.log('\n====BORROWING BOOK====');
+    for (show of parseB){
+        if (show.username === username){
+        console.log('Borrowing book: ', show.id , show.book, '\tBorrow Date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
+        }
+    }
     
-    return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
+    var choose = readLine.question('Choose book return > ')
+    var chose = parseB.find(function(x){
+        return x.id === parseInt(choose);    
+    })
+    var choseN = parseN.find(function(x){
+        return x.name === chose.book; 
+    })
+    var choseH = parseH.find(function(x){
+        return x.book === chose.book && x.username === chose.username && x.expirateDate === chose.expirateDate && x.returnDate === chose.returnDate;
+    })
+    
+        console.log('Return Success: ',chose.id, chose.book)
+        parseB.splice(choose, 1)
+        fs.writeFileSync('DatabaseBorrow.json', JSON.stringify(parseB))
+        ++choseN.quantity
+        fs.writeFileSync('DatabaseNumber.json', JSON.stringify(parseN))
+        choseH.returnDate = moment(newDate).format('DD/MM/YYYY');
+        fs.writeFileSync('DatabaseHistory.json', JSON.stringify(parseH))
+            
+}
+
+function history(username){
+    var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
+    var parseH = JSON.parse(readH);
+    console.log('\n====HISTORY BORROW BOOK====\nOutOfDate: 0');
+    for (show of parseH){
+        if (show.username === username){
+        console.log(show.id , show.book, '\tBorrow Date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate, '\tReturn Date: ', show.returnDate)
+        }
+    }
+    
+    
 }
 
 function main(){

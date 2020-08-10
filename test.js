@@ -8,70 +8,47 @@
 var fs = require('fs');
 var readLine = require ('readline-sync');
 var moment = require('moment');
-// function findUsername(info){
-//   try {
-//       var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
-//   } catch (error) {
-//       fs.writeFileSync('DatabaseUser.json', '[]')      
-//       var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})  
-//   }
-//   var parse = JSON.parse(read);
-//   return parse.find(function(x){
-//       return x.username === info
-//       })
-          
-// }
 
-// function findPassword(user, info){
-//   return user.password === info   
-// }
-// console.log(findUsername('hoa'))
-// console.log(findPassword(findUsername(username), '1999'))
-// var read = fs.readFileSync('DatabaseBook.json', {encoding : 'utf8'})
-// var readNumber = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
-// var readUser = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
-// var parse = JSON.parse(read);
-// var parseNumber = JSON.parse(readNumber);
-// var parseUser = JSON.parse(readUser);
-// console.log('\n====CHOOSE BOOK====');
-// for (info of parse){
-//     for (infoNumber of parseNumber){
-//         if (info.name === infoNumber.name)
-//             console.log(info.id, info.name, '\t\tQuantity: ', infoNumber.quantity)
-//     }
-// }
-// var choose = readLine.question('>')
-// var chose = parse.find(function(x){
-//     return x.id === parseInt(choose)
-// })
-// var chse = parseNumber.find(function(y){
-//     return y.name === chose.name
-// })
-// var chseU = parseUser.find(function(y){
-//     return y.name === chose.name
-// })
-// console.log(chseU)
-// console.log('Ban da muon sach', parse[choose].name, '\t\tSo luong con lai: ', --chse.quantity )
-// fs.writeFileSync('DatabaseNumber.json', JSON.stringify(parseNumber))
-// function change(username){
-//     var read = fs.readFileSync('DatabaseUser.json', {encoding : 'utf8'})
-//     var parse = JSON.parse(read);
-//     var changeB = parse.find(function(x){
-//         return x.username === username
-//     })
-//     ++changeB.borrowed
-    
-//     return fs.writeFileSync('DatabaseUser.json', JSON.stringify(parse))
-// }
-// change('tam')
+function returned(username){
+   var read = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+   var parse = JSON.parse(read);
+   
+  var readN = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+  var parseN = JSON.parse(readN);
+  var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
+  var parseH = JSON.parse(readH);
+  console.log('\n====BORROWING BOOK====');
+  for (show of parseH){
+    if (show.username === username){
+      console.log('Borrowing book: ', show.id , show.book, '\tBorrow date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
+    }
+  }
+  var choose = readLine.question('Choose book return > ')
+  var chose = parseH.find(function(x){
+  return x.id === parseInt(choose);})
+  try {
+    console.log('Ban da chon: ', chose.book)
+    parseH.splice(choose, 1)
+    for (show of parseH){
+      if (show.username === username){
+        console.log('Borrowing book: ', show.id , show.book, '\tBorrow date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
+      }
+    }
+  } catch (error) {
+    returned("tam")
+  
+}
+     
 
-
-
-
-
-console.log(new Date(moment().format('DD/MM/YYYY')).setDate(3))
-
-
-
-
-    
+  
+ 
+  
+} returned("tam")  
+  // var changeA = parseN.find(function(x){
+  //     return x.name
+  // })
+  // var changeB = parse.find(function(x){
+  //     return x.username === username
+  // })
+  // ++changeB.returned
+  

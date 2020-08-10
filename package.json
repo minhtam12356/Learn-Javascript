@@ -7,6 +7,7 @@
     "encrypt": "0.0.1",
     "moment": "^2.27.0",
     "password-generator": "^2.3.2",
+    "prompts": "^2.3.2",
     "readline-sync": "^1.4.10",
     "request": "^2.88.2",
     "utf8": "^3.0.0",
