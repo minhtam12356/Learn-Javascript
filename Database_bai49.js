@@ -134,12 +134,12 @@ function borrowBook(userName){
     }
     var parseB = JSON.parse(readB)
     var newDate = new Date();
-    newDate.setDate(newDate.getDate() + 15)
+    newDate.setDate(newDate.getDate() - 2)
     borrow.id = parseB.length;
     borrow.username = userName;
     borrow.book = parse[choose].name;
-    borrow.borrowDate = moment().format('DD/MM/YYYY');
-    borrow.expirateDate = moment(newDate).format('DD/MM/YYYY');
+    borrow.borrowDate = moment().format('YYYY/MM/DD');
+    borrow.expirateDate = moment(newDate).format('YYYY/MM/DD');
     borrow.returnDate = "Unpaid";
     parseB.push(borrow);
     var stringifyB = JSON.stringify(parseB);      
@@ -154,14 +154,16 @@ function borrowBook(userName){
         var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})        
     }
     var parseH = JSON.parse(readH)
-    var newDate = new Date();
-    newDate.setDate(newDate.getDate() + 15)
+    
+    
+
     history.id = parseH.length;
     history.username = userName;
     history.book = parse[choose].name;
-    history.borrowDate = moment().format('DD/MM/YYYY');
-    history.expirateDate = moment(newDate).format('DD/MM/YYYY');
+    history.borrowDate = moment().format('YYYY/MM/DD');
+    history.expirateDate = moment(newDate).format('YYYY/MM/DD');
     history.returnDate = "Unpaid";
+    history.outOfDate = "0"
     parseH.push(history);
     var stringifyH = JSON.stringify(parseH);      
     fs.writeFileSync('DatabaseHistory.json', stringifyH)
@@ -251,11 +253,17 @@ function returned(username){
     })
     
         console.log('Return Success: ',chose.id, chose.book)
-        parseB.splice(choose, 1)
+        parseB.splice(parseB.indexOf(chose), 1)
         fs.writeFileSync('DatabaseBorrow.json', JSON.stringify(parseB))
         ++choseN.quantity
         fs.writeFileSync('DatabaseNumber.json', JSON.stringify(parseN))
-        choseH.returnDate = moment(newDate).format('DD/MM/YYYY');
+        choseH.returnDate = moment(newDate).format('YYYY/MM/DD');
+        var reDate = new Date(choseH.returnDate)
+        var exDate = new Date(choseH.expirateDate)
+        if((reDate.getDate() - exDate.getDate()) > 0){
+            choseH.outOfDate = reDate.getDate() - exDate.getDate();
+        }
+        
         fs.writeFileSync('DatabaseHistory.json', JSON.stringify(parseH))
             
 }
@@ -263,14 +271,16 @@ function returned(username){
 function history(username){
     var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
     var parseH = JSON.parse(readH);
-    console.log('\n====HISTORY BORROW BOOK====\nOutOfDate: 0');
+    var sum = 0;
+    console.log('\n====HISTORY BORROW BOOK====');
     for (show of parseH){
+        
         if (show.username === username){
-        console.log(show.id , show.book, '\tBorrow Date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate, '\tReturn Date: ', show.returnDate)
+            console.log(show.id , show.book, '\tBorrow Date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate, '\tReturn Date: ', show.returnDate, '\tOut Of Date: ', show.outOfDate)
+            sum = show.outOfDate + sum;            
         }
     }
-    
-    
+    console.log('Sum out of date: ', sum)   
 }
 
 function main(){

@@ -9,41 +9,49 @@ var fs = require('fs');
 var readLine = require ('readline-sync');
 var moment = require('moment');
 
-function returned(username){
-   var read = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
-   var parse = JSON.parse(read);
+var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
+var parseH = JSON.parse(readH);
+var day = parseH[0].expirateDate
+var m = moment().format('YYYY/MM/DD')
+console.log(m)
+var d = new Date(m)
+console.log(d.getDate())
+
+// function returned(username){
+//    var read = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+//    var parse = JSON.parse(read);
    
-  var readN = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
-  var parseN = JSON.parse(readN);
-  var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
-  var parseH = JSON.parse(readH);
-  console.log('\n====BORROWING BOOK====');
-  for (show of parseH){
-    if (show.username === username){
-      console.log('Borrowing book: ', show.id , show.book, '\tBorrow date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
-    }
-  }
-  var choose = readLine.question('Choose book return > ')
-  var chose = parseH.find(function(x){
-  return x.id === parseInt(choose);})
-  try {
-    console.log('Ban da chon: ', chose.book)
-    parseH.splice(choose, 1)
-    for (show of parseH){
-      if (show.username === username){
-        console.log('Borrowing book: ', show.id , show.book, '\tBorrow date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
-      }
-    }
-  } catch (error) {
-    returned("tam")
+//   var readN = fs.readFileSync('DatabaseNumber.json', {encoding : 'utf8'})
+//   var parseN = JSON.parse(readN);
+//   var readH = fs.readFileSync('DatabaseHistory.json', {encoding : 'utf8'})
+//   var parseH = JSON.parse(readH);
+//   console.log('\n====BORROWING BOOK====');
+//   for (show of parseH){
+//     if (show.username === username){
+//       console.log('Borrowing book: ', show.id , show.book, '\tBorrow date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
+//     }
+//   }
+//   var choose = readLine.question('Choose book return > ')
+//   var chose = parseH.find(function(x){
+//   return x.id === parseInt(choose);})
+//   try {
+//     console.log('Ban da chon: ', chose.book)
+//     parseH.splice(choose, 1)
+//     for (show of parseH){
+//       if (show.username === username){
+//         console.log('Borrowing book: ', show.id , show.book, '\tBorrow date: ', show.borrowDate, '\tExpirate Date: ', show.expirateDate)
+//       }
+//     }
+//   } catch (error) {
+//     returned("tam")
   
-}
+// }
      
 
   
  
   
-} returned("tam")  
+// } returned("tam")  
   // var changeA = parseN.find(function(x){
   //     return x.name
   // })
