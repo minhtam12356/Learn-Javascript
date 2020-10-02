@@ -13,6 +13,8 @@ var voters = [
   ];
   
   function totalVotes(arr) {
-      console.log(arr.reduce(arr.filter(x => x.voted === true)));
-    }
+    console.log(arr.reduce(function(x, y){
+        return y.voted == true ? x + 1: x
+    }, 0))
+  }
   totalVotes(voters)
